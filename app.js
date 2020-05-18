@@ -83,6 +83,36 @@ var connection = mysql.createConnection({
       })
   }
 
+  function addEmployee(){
+      inquirer.prompt([
+          {
+              name:"firstName",
+              type:"input",
+              message:"Employee's first name?"
+          },
+          {
+              name:"lastName",
+              type:"input",
+              message:"Employee's last name?"
+          },
+          {
+              name:"department",
+              type:"list",
+              message:"Department?",
+              choices:["IT", "Dev", "Payroll"]
+          }
+      ]).then(function(res){
+          var query = connection.query(
+              "insert into employee set ?",
+              {
+                  firstName: "Mario",
+                  lastName: "Kozic",
+                  
+              }
+          )
+      });
+  }
+
   function initView(){
     inquirer.prompt({
         name:"view",
