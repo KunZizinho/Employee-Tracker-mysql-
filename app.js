@@ -1,144 +1,155 @@
-var mysql = require("mysql");
-var inquirer = require("inquirer");
+const mysql = require("mysql");
+const inquirer = require("inquirer");
 
+// ovdje cemo deklarirati variablu connection i definirati je tako da cemo ugadenom funkcijom mysql.createConnection gdje smo konfigurirali svojstva port, user, password i database
 
-var connection = mysql.createConnection({
-    host: "localhost",
-  
-    // Your port; if not 3306
+const connection = mysql.createConnection({
     port: 3306,
-  
-    // Your username
     user: "root",
-  
-    // Your password
-    password: "rootpass",
-    database: "employee_trackerDB"
-  });
+    password: "Vanessa0319",
+    database: "employeeTracker_db"
+});
+// console.log(connection)
 
-  connection.connect(function(err) {
-    if (err) throw err;
-    startApp();
-  });
+// zatim smo ponovno pozvali variablu connection te metodom       .connect()  definirali anonimnu funkciju da nam vrati greskuako je greska istinita
 
-  function startApp(){
+connection.connect(function(err){
+    if(err){
+        throw err;
+        console.log("err connecting... " + err)
+    }
+});
+console.log("here line 22")
+
+//ovdje smo pozvali funkciju kojom cemo izabrati hocemo li dodati isprintati, update ili izaci iz programa
+getJob();
+
+function getJob(){
     inquirer.prompt({
-        name:"action",
-        type:"list",
-        message:"Welcome to Employee-tracker app",
-        choices:["Add", "View", "Update", "Delete", "Exit"]
-    }).then(function(res){
-        switch (res.action) {
-            case "Add":
-                initAdd();
-                break;
+        name: "job",
+        type: 'checkbox',
+        message: "What would you like to do?",
+        choices: ["add", "view", "update", "exit"]
 
-            case "View":
-                initView();
+    }).then(function({job}){
+        switch(job){
+            case "add":
+                add();
                 break;
-
-            case "Update":
-                initUpdate();
+            case "view":
+                view();
                 break;
-
-            case "Delete":
-                initDelete();
+            case "update":
+                update();
                 break;
-
-            case "Exit":
-                break;
-
+            case "exit":
+                connection.end();
+                return;
         }
     })
+
+    
+}
   
 
-  function initAdd(){
-      inquirer.prompt({
-          name:"add",
-          type:"list",
-          message:"What would you like to add?",
-          choices:["Add Employee", "Add Department", "Add Role", "Go Back", "Exit"]
-      }).then(function(res){
-        switch (res.add) {
-            case "Add Employee":
-                addEmployee();
+// ovdje cemo napraviti funkciju kojom cemo dodati zaposlenika
+
+function add(){
+    inquirer.prompt({
+        name: "db",
+        message: "What would you like to add?",
+        type: "checkbox",
+        choices: ["department", "role", "employee"]
+
+    }).then(function({db}){
+        console.log(db)
+        switch(db){
+            case "department":
+                add_department();
                 break;
-
-            case "Add Department":
-                addDepartment();
+            case "role":
+                add_role();
                 break;
-
-            case "Add Role":
-                addRole();
+            case "employee":
+                add_employee();
                 break;
-
-            case "Go Back":
-                startApp();
-                break; 
-
-            case "Exit":
-                break;
-
         }
-      })
-  }
+    })
 
-  function addEmployee(){
-      inquirer.prompt([
-          {
-              name:"firstName",
-              type:"input",
-              message:"Employee's first name?"
-          },
-          {
-              name:"lastName",
-              type:"input",
-              message:"Employee's last name?"
-          },
-          {
-              name:"role",
-              type:"list",
-              Message:"What is your role in the company?",
-              choices:["IT manager", "Project(Dev) manager", "Payroll manager", "Accountant", "Payroll administrator", "Helpdesk technician", "Networking engineer", "Sr. developer", "Jr. developer"]
-          }
-      ]).then(function(answer){
-          connection.query = ("select first_name, last_name from employee where ?",
-          {
-              first_name: answer.firstName,
-              last_name: answer.lastName,
-              role: answer.role
-          }, function(err, res){
-              if(err) throw err;
-              console.log("Employee successfully added to database!!")
-              console.table(res)
-              
-          });
+}
 
-      }); 
-    };
+console.log("here line 77")
 
-    function addDepartment(){
-        inquirer.prompt({
-            name:"addDept",
-            type:"list",
-            message:"Which department is employee from?",
-            choices:["Payroll", "IT", "Development"]
-        }).then(function(answer){
-            connection.query("selact name from department where ?",
-            {name:answer.addDept}, function(err, res){
-                if(err) throw err;
-                console.log("Department added!")
-                console.table(answer.addDept)
-            })
+//ovdje cemo otvoriti funkciju u slucaju da korisnik odabere add department
 
-        });
-    };
+function add_department(){
+    inquirer.prompt(
+        {
+            name: "name",
+            message: "What is th Department's name?",
+            type: "input"
+        }
 
-    function addRole(){
-        inquirer.prompt({
-            name:"addArole"
+    ).then(function({name}){
+        connection.query(`insert into department (name) values ("${name}")`, function(err, data){
+            if(err){
+                throw err;
+                console.log(err)
+            }
+            getJob();
+            console.log("Department added")
+            console.log(data)
         })
-    }
+    })
+}
+ 
+ // ovdje cemo otvoriti funkciju koja u slucaju da korisnik odamere add_role
+
+ function add_role(){
+     let departments = [];
+     connection.query(`select * from department`, function(err, data){
+         if(err){
+             throw err;
+
+         }
+
+         for(let i = 0; i <data.length; i++){
+             //loop kojim ispisuemo imena svih departmenta
+
+             departments.push(data[i].name);
+         }
+         inquirer.prompt([
+             {
+                 name: "position",
+                 message: "What is your role?",
+                 type: "input"
+             },
+             {
+                 name: "salary",
+                 message: "What is your salary?",
+                 type: "input"
+             },
+             {
+                 name: "department_id",
+                 message: "Which department does it belong to?",
+                 type: "list",
+                 choices: departments
+             }
+         ]).then(function({position, salary, department_id}){
+
+             let index = departments.indexOf(department_id);
+             connection.query(`insert into role(title, salary, department_id) values ("${position}", "${salary}", "${index}")`, function(err, data){
+                 if(err){
+                     throw err;
+                     console.log("role is added")
+                 }
+                 getJob();
+             })
+
+         })
+
+     })
+ }//nastavi
 
   function initView(){
     inquirer.prompt({
