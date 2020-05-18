@@ -74,7 +74,7 @@ var connection = mysql.createConnection({
 
             case "Go Back":
                 startApp();
-                break;
+                break; 
 
             case "Exit":
                 break;
@@ -94,19 +94,51 @@ var connection = mysql.createConnection({
               name:"lastName",
               type:"input",
               message:"Employee's last name?"
+          },
+          {
+              name:"role",
+              type:"list",
+              Message:"What is your role in the company?",
+              choices:["IT manager", "Project(Dev) manager", "Payroll manager", "Accountant", "Payroll administrator", "Helpdesk technician", "Networking engineer", "Sr. developer", "Jr. developer"]
           }
       ]).then(function(answer){
           connection.query = ("select first_name, last_name from employee where ?",
           {
               first_name: answer.firstName,
-              last_name: answer.lastName
+              last_name: answer.lastName,
+              role: answer.role
           }, function(err, res){
               if(err) throw err;
               console.log("Employee successfully added to database!!")
+              console.table(res)
+              
           });
 
       }); 
     };
+
+    function addDepartment(){
+        inquirer.prompt({
+            name:"addDept",
+            type:"list",
+            message:"Which department is employee from?",
+            choices:["Payroll", "IT", "Development"]
+        }).then(function(answer){
+            connection.query("selact name from department where ?",
+            {name:answer.addDept}, function(err, res){
+                if(err) throw err;
+                console.log("Department added!")
+                console.table(answer.addDept)
+            })
+
+        });
+    };
+
+    function addRole(){
+        inquirer.prompt({
+            name:"addArole"
+        })
+    }
 
   function initView(){
     inquirer.prompt({
@@ -136,7 +168,7 @@ var connection = mysql.createConnection({
               break;
 
       }
-    })
+    });
 }
 
 function initUpdate(){
