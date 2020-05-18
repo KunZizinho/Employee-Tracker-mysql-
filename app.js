@@ -94,24 +94,19 @@ var connection = mysql.createConnection({
               name:"lastName",
               type:"input",
               message:"Employee's last name?"
-          },
-          {
-              name:"department",
-              type:"list",
-              message:"Department?",
-              choices:["IT", "Dev", "Payroll"]
           }
-      ]).then(function(res){
-          var query = connection.query(
-              "insert into employee set ?",
-              {
-                  firstName: "Mario",
-                  lastName: "Kozic",
-                  
-              }
-          )
-      });
-  }
+      ]).then(function(answer){
+          connection.query = ("select first_name, last_name from employee where ?",
+          {
+              first_name: answer.firstName,
+              last_name: answer.lastName
+          }, function(err, res){
+              if(err) throw err;
+              console.log("Employee successfully added to database!!")
+          });
+
+      }); 
+    };
 
   function initView(){
     inquirer.prompt({
