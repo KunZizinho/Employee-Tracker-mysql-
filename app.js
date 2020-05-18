@@ -6,7 +6,7 @@ const inquirer = require("inquirer");
 const connection = mysql.createConnection({
     port: 3306,
     user: "root",
-    password: "Vanessa0319",
+    password: "rootpass",
     database: "employeeTracker_db"
 });
 // console.log(connection)
@@ -34,213 +34,314 @@ function getJob(){
     }).then(function({job}){
         switch(job){
             case "add":
+                console.log(job)
                 add();
                 break;
             case "view":
+                console.log(job)
                 view();
                 break;
             case "update":
+                console.log(job)
                 update();
                 break;
             case "exit":
                 connection.end();
                 return;
         }
-    })
-
+    });
+console.log("here linija 50")
     
 }
-  
 
 // ovdje cemo napraviti funkciju kojom cemo dodati zaposlenika
 
-function add(){
-    inquirer.prompt({
-        name: "db",
-        message: "What would you like to add?",
-        type: "checkbox",
-        choices: ["department", "role", "employee"]
+// function add(){
+//     inquirer.prompt({
+//         name: "db",
+//         message: "What would you like to add?",
+//         type: "checkbox",
+//         choices: ["department", "role", "employee"]
 
-    }).then(function({db}){
-        console.log(db)
-        switch(db){
-            case "department":
-                add_department();
-                break;
-            case "role":
-                add_role();
-                break;
-            case "employee":
-                add_employee();
-                break;
-        }
-    })
-
-}
-
-console.log("here line 77")
+//     }).then(function({db}){
+//         console.log(db)
+//         switch(db){
+//             case "department":
+//                 add_department();
+//                 break;
+//             case "role":
+//                 add_role();
+//                 break;
+//             case "employee":
+//                 add_employee();
+//                 break;
+//         }
+//     })
+    // add();
+// }
+// console.log("here line 77")
 
 //ovdje cemo otvoriti funkciju u slucaju da korisnik odabere add department
 
-function add_department(){
-    inquirer.prompt(
-        {
-            name: "name",
-            message: "What is th Department's name?",
-            type: "input"
-        }
+// function add_department(){
+//     inquirer.prompt(
+//         {
+//             name: "name",
+//             message: "What is th Department's name?",
+//             type: "input"
+//         }
 
-    ).then(function({name}){
-        connection.query(`insert into department (name) values ("${name}")`, function(err, data){
-            if(err){
-                throw err;
-                console.log(err)
-            }
-            getJob();
-            console.log("Department added")
-            console.log(data)
-        })
-    })
-}
+//     ).then(function({name}){
+//         connection.query(`insert into department (name) values ("${name}")`, function(err, data){
+//             if(err){
+//                 throw err;
+//                 console.log(err)
+//             }
+//             getJob();
+//             console.log("Department added")
+//             console.log(data)
+//         })
+//     })
+// }
  
  // ovdje cemo otvoriti funkciju koja u slucaju da korisnik odamere add_role
 
- function add_role(){
-     let departments = [];
-     connection.query(`select * from department`, function(err, data){
-         if(err){
-             throw err;
+//  function add_role(){
+//      let departments = [];
+//      connection.query(`select * from department`, function(err, data){
+//          if(err){
+//              throw err;
 
-         }
+//          }
 
-         for(let i = 0; i <data.length; i++){
-             //loop kojim ispisuemo imena svih departmenta
+//          for(let i = 0; i <data.length; i++){
+//              //loop kojim ispisuemo imena svih departmenta
 
-             departments.push(data[i].name);
-         }
-         inquirer.prompt([
-             {
-                 name: "position",
-                 message: "What is your role?",
-                 type: "input"
-             },
-             {
-                 name: "salary",
-                 message: "What is your salary?",
-                 type: "input"
-             },
-             {
-                 name: "department_id",
-                 message: "Which department does it belong to?",
-                 type: "list",
-                 choices: departments
-             }
-         ]).then(function({position, salary, department_id}){
+//              departments.push(data[i].name);
+//          }
+//          inquirer.prompt([
+//              {
+//                  name: "position",
+//                  message: "What is your role?",
+//                  type: "input"
+//              },
+//              {
+//                  name: "salary",
+//                  message: "What is your salary?",
+//                  type: "input"
+//              },
+//              {
+//                  name: "department_id",
+//                  message: "Which department does it belong to?",
+//                  type: "list",
+//                  choices: departments
+//              }
+//          ]).then(function({position, salary, department_id}){
 
-             let index = departments.indexOf(department_id);
-             connection.query(`insert into role(title, salary, department_id) values ("${position}", "${salary}", "${index}")`, function(err, data){
-                 if(err){
-                     throw err;
-                     console.log("role is added")
-                 }
-                 getJob();
-             })
+//              let index = departments.indexOf(department_id);
+//              connection.query(`insert into role(title, salary, department_id) values ("${position}", "${salary}", "${index}")`, function(err, data){
+//                  if(err){
+//                      throw err;
+//                      console.log("role is added")
+//                  }
+//                  getJob();
+//              })
 
-         })
+//          })
 
-     })
- }//nastavi
+//      })
+//  }
 
-  function initView(){
-    inquirer.prompt({
-        name:"view",
-        type:"list",
-        message:"What would you like to add?",
-        choices:["View Employee", "View Department", "View Role","Go Back", "Exit"]
-    }).then(function(res){
-      switch (res.view) {
-          case "View Employee":
-              viewEmployee();
-              break;
+ // ovdje cemo staviti funkciju kojom dodajemo zaposlenike i pozicije na kojima rade
 
-          case "View Department":
-              viewDepartment();
-              break;
+//  function add_employee(){
 
-          case "View Role":
-              viewRole();
-              break;
+//      let employees = [];
+//      let roles = [];
 
-          case "Go Back":
-              startApp();
-              break;
+//      connection.query(
+//          `select * from role`, function(err, data){
+//          if(err){
+//              throw err;
+//          }
+//          for(let i = 0; i < data.length; i++){
+//              employees.push(data[i].first_name);
+//          }
+//          inquirer.prompt([
+//              {
+//                  name: "first_name",
+//                  message: "What's is the employees First Name?",
+//                  type: "input"
+//              },
+//              {
+//                  name: "last_name",
+//                  message: "What's is the employees Last Name?",
+//                  type: "input"
+//              },
+//              {
+//                  name: "role_id",
+//                  message: "What is employees role?",
+//                  type: "list",
+//                  choices: roles
+//              },
+//              {
+//                  name: "manager_id",
+//                  message: "Who is their manager?",
+//                  type: "list",
+//                  choices: ["none"].concat(employees)
+//              }
+//          ]).then(function({first_name, last_name, role_id, manager_id}){
+//              let queryTxt = `insert into employee(first_name, last_name, role_id)`;
+//              if(manager_id != "none"){
+//                  queryTxt += `values ("${first_name}", "${last_name}", ${roles.indexOf(role_id)}, ${employees.indexOf(manager_id) + 1})`
+//              }
+//              console.log(queryTxt)
 
-          case "Exit":
-              break;
+//              connection.query(queryTxt, function(err, data){
+//                  if(err){
+//                      throw err;
+//                  }
+//                  getJob();
+//              })
+//          })
+        
+//         })
+//     }
 
-      }
-    });
-}
+    // ovdje cemo staviti funkciju ako korisnik odabere pregled
 
-function initUpdate(){
-    inquirer.prompt({
-        name:"update",
-        type:"list",
-        message:"What would you like to add?",
-        choices:["Update Employee", "Update Managment", "Update Role","Go Back", "Exit"]
-    }).then(function(res){
-      switch (res.update) {
-          case "Update Employee":
-              updateEmployee();
-              break;
+    // function view(){
+    //     inquirer.prompt(
+    //         {
+    //             name: "db",
+    //             message: "What would you like to view?",
+    //             type: "checkbox",
+    //             choices: ["department", "role", "employee"]
+    //         }
+    //     ).then(function({db}){
+    //         connection.query(`select * from ${db}`, function(err, data){
+    //             if(err){
+    //                 throw err;
+    //             }
+    //             console.table(data)
+    //         })
+    //     })
+    // }
 
-          case "Update Managment":
-              updateManagment();
-              break;
+    // ovdje cemo otvoriti funkciju za update 
 
-          case "Update Role":
-              updateRole();
-              break;
+    // function update(){
+    //     inquirer.prompt(
+    //         {
+    //             name: "update",
+    //             message: "What would you like to update?",
+    //             type: "list",
+    //             choices: ["role", "manager"]
+    //         }
 
-          case "Go Back":
-               startApp();
-               break;
+    //     ).then(function({update}){
+    //         switch(update){
+    //             case "role":
+    //                 update_role;
+    //                 break;
+    //             case "manager":
+    //                 update_manager;
+    //                 break;
+    //         }
+    //     })
+    // }
 
-          case "Exit":
-              break;
+    // ovdje cemo otvoriti funkciju za update role
 
-      }
-    })
-}
+    // function update_role(){
+    //     connection.query(`select * from employee`, function(err, data){
+    //         if(err){
+    //             throw err;
+    //         }
+    //         let employees = [];
+    //         let roles = [];
 
-function initDelete(){
-    inquirer.prompt({
-        name:"delete",
-        type:"list",
-        message:"What would you like to add?",
-        choices:["Delete Employee", "Delete Managment", "Delete Role","Go Back", "Exit"]
-    }).then(function(res){
-      switch (res.delete) {
-          case "Delete Employee":
-              deleteEmployee();
+    //         for(let i = 0; i < data.length; i++){
+    //             employees.push(data[i].first_name)
+    //         }
 
-          case "Delete Managment":
-              deleteManagment();
+    //         connection.query(`select * from role`, function(err, data){
+    //             if(err){
+    //                 throw err;
+    //             }
+                
+    //             for(let i = 0; i < data.length; i++){
+    //                 roles.push(data[i].position);
+    //             }
+                
+    //             inquirer.prompt([
+    //                 {
+    //                     name: "employee_id",
+    //                     message: "Who's role need's to be updated?",
+    //                     type: "list",
+    //                     choices: employees
+    //                 },
+    //                 {
+    //                     name: "role_id",
+    //                     message: "What is the new role?",
+    //                     type: "list",
+    //                     choices: roles
+    //                 }
+    //             ]).then(function({employee_id,role_id}){
+                    
+    //                 connection.query(`update employee set role_id = ${roles.indexOf(role_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`, function(err, data){
+    //                     if(err){
+    //                         throw err;
+    //                     }
+    //                     getJob();
+    //                 })
+    //             })
+    //         })
+    //     })
+    // }
 
-          case "Delete Role":
-              deleteRole();
+    // ovdje cemo otvoriti funkciju za manager update
 
-          case "Go Back":
-              startApp();
-              break;
+    // function update_manager(){
 
-          case "Exit":
-              break;
+    //     connection.query(`select * from employee`, function(err, data){
+    //         if(err){
+    //             throw err;
+    //         }
+    //         let employees = [];
+    //         for(let i = 0; i < data.length; i++){
+    //             employees.push(data[i].first_name)
+    //         }
 
-      }
-    })
-}
+    //         inquirer.prompt([
+    //             {
+    //                 name: "employee_id",
+    //                 message: "Which employee would you like update?",
+    //                 type: "list",
+    //                 choices: employees
+    //             },
+    //             {
+    //                 name: "manager_id",
+    //                 message: "Who is the new manager?",
+    //                 type: "list",
+    //                 choices: ["none"].concat(employees)
+    //             }
 
+    //         ]).then(({employee_id, manager_id}) => {
 
+    //             let queryTxt = "";
+    //             if(manager_id !== "none"){
+    //                 queryTxt = `update employee set manager_id = ${employees.indexOf(manager_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`
+    //             } else {
+    //                 queryTxt = `update employee set manager_id = ${null} where id = ${employees.indexOf(employee_id) + 1}`
+    //             }
 
-}
+    //             connection.query(queryTxt, function(err, data){
+    //                 if(err){
+    //                     throw err;
+    //                 }
+    //                 getJob();
+    //             })
+    //         })
+    //     });
+    // }
