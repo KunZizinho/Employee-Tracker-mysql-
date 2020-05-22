@@ -61,9 +61,24 @@ function add(){
         type: "list",
         choices: ["department", "role", "employee"]
 
-    }).then(function({db}){
-        console.log(db)
-        switch(db){
+    })
+    // .then(function({db}){
+    //     console.log(db)
+    //     switch(db){
+    //         case "department":
+    //             add_department();
+    //             break;
+    //         case "role":
+    //             add_role();
+    //             break;
+    //         case "employee":
+    //             add_employee();
+    //             break;
+    //     }
+    // })
+    .then(res =>{
+        console.log(res)
+        switch (res.db) {
             case "department":
                 add_department();
                 break;
@@ -77,27 +92,36 @@ function add(){
     })
     // add();
 }
-console.log("here line 77")
+// console.log("here line 77")
 
 //ovdje cemo otvoriti funkciju u slucaju da korisnik odabere add department
 
 function add_department(){
     inquirer.prompt(
         {
-            name: "name",
+            name: "department_name",
             message: "What is th Department's name?",
             type: "input"
         }
 
-    ).then(function({name}){
-        connection.query(`insert into department (name) values ("${name}")`, function(err, data){
-            if(err){
-                throw err;
+    )
+    // .then(function({name}){
+    //     connection.query(`insert into department (name) values ("${name}")`, function(err, data){
+    //         if(err){
+    //             throw err;
 
-            }
-            getJob();
+    //         }
+    //         getJob();
+    //         console.log("Department added")
+    //         console.log(data)
+    //     })
+    // })
+    .then(res =>{
+        connection.query(`insert into department (department_name) values ('${res.department_name}')`, function(err, data){
+            if(err) throw err;
             console.log("Department added")
             console.log(data)
+
         })
     })
 }
@@ -260,7 +284,8 @@ function add_department(){
             let roles = [];
 
             for(let i = 0; i < data.length; i++){
-                employees.push(data[i].first_name)
+                employees.push(data[i].first_name);
+                console.log(employees)
             }
 
             connection.query(`select * from role`, function(err, data){
@@ -270,6 +295,7 @@ function add_department(){
                 
                 for(let i = 0; i < data.length; i++){
                     roles.push(data[i].position);
+                    console.log(data, roles)
                 }
                 
                 inquirer.prompt([
@@ -286,13 +312,14 @@ function add_department(){
                         choices: roles
                     }
                 ]).then(function({employee_id,role_id}){
-                    
-                    connection.query(`update employee set role_id = ${roles.indexOf(role_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`, function(err, data){
-                        if(err){
-                            throw err;
-                        }
-                        getJob();
-                    })
+                    var sql = "update employee"
+                    connection.query(`update employee `)
+                    // connection.query(`update employee set role_id = ${roles.indexOf(role_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`, function(err, data){
+                    //     if(err){
+                    //         throw err;
+                    //     }
+                    //     getJob();
+                    // })
                 })
             })
         })
