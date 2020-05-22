@@ -18,7 +18,7 @@ connection.connect(function(err){
         throw err;
     }
 });
-console.log("here line 22")
+
 
 //ovdje smo pozvali funkciju kojom cemo izabrati hocemo li dodati isprintati, update ili izaci iz programa
 startApp();
@@ -167,7 +167,6 @@ function add_department(){
         //              throw err;
 
         //          }
-        //          getJob();
         //      })
 
         //  })
@@ -187,17 +186,20 @@ function add_department(){
 
  function add_employee(){
 
-     let employees = [];
-     let roles = [];
+    let employees = [];
+    let roles = [];
 
-     connection.query(
-         `select * from role`, function(err, data){
-         if(err){
-             throw err;
-         }
-         for(let i = 0; i < data.length; i++){
-             employees.push(data[i].first_name);
-         }
+    connection.query(
+        `select * from employee`, function(err, data){
+        if(err){
+            throw err;
+        }
+        for(let i = 0; i < data.length; i++){
+            employees.push(data[i].first_name);
+            roles.push(data[i].role_id);
+        }
+        console.table(employees,)
+
          inquirer.prompt([
              {
                  name: "first_name",
@@ -212,40 +214,41 @@ function add_department(){
              {
                  name: "role_id",
                  message: "What is employees role?",
-                 type: "list",
-                 choices: roles
-             },
-             {
-                 name: "manager_id",
-                 message: "Who is their manager?",
-                 type: "list",
-                 choices: ["none"].concat(employees)
+                 type: "input",
+
              }
+            //  {
+            //      name: "managerID",
+            //      message:"Who is your department head?",
+            //      type: "list",
+            //      choices:["none"].concat(employees)
+
+            //  }
          ])
         //  .then(function({first_name, last_name, role_id, manager_id}){
         //      let queryTxt = `insert into employee(first_name, last_name, role_id)`;
         //      if(manager_id != "none"){
-        //          queryTxt += `values ("${first_name}", "${last_name}", ${roles.indexOf(role_id)}, ${employees.indexOf(manager_id) + 1})`
+        //          queryTxt += `values ("${first_name}", "${last_name}", ${roles.indexOf(role_id)}`;
         //      }
         //      console.log(queryTxt)
 
         //      connection.query(queryTxt, function(err, data){
-        //          if(err){
-        //              throw err;
-        //          }
-        //          getJob();
+        //          if(err) throw err;
+        //          console.table(data)
+        //         //  getJob();
         //      })
         //  })
-        .then(res =>{
-            let queryTxt = `insert into employee(first_name, last_name, role_id)`;
-            let roleIdIndex = roles.indexOf(role_id);
-            let managerIdIndex = employees.indexOf(manager_id);
-            if(manager_id !== "none"){
-                queryTxt += `values("${res.first_name}", "${res.last_name}", "${roleIdIndex}", "${managerIdIndex}" + 1)`
-            }
-        })
+        .then(res =>{ 
+            let roleIndex = roles.indexOf(res.role_id);
+            console.log(roleIndex)
+            connection.query(`insert into employee(first_name, last_name, role_id) values ("${res.first_name}", "${res.last_name}", "${roleIndex}")`, function(err, data){
+                if(err) throw err;
+                console.log(res, data, roleIndex)
+                console.log("employee successfully added!")
+            });
+        });
         
-        })
+        });
     }
 
     // ovdje cemo staviti funkciju ako korisnik odabere pregled
