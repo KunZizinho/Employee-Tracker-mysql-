@@ -47,3 +47,18 @@ INSERT INTO employee (first_name, last_name, role_id)
 VALUES ("Denis", "Demirovski", 2, );
 INSERT INTO employee (first_name, last_name, role_id)
 VALUES ("Milan", "Soco", 3);
+
+select from roles cross join employees;
+
+-- replace into employee(first_name, last_name)
+-- values("Mario", "Kozic"),
+-- ("Tomislav", "Kozic"),
+-- ("Marko", "Dundovic"),
+-- ("Denis", "Demirovski");
+
+
+-- ovim queryem brojimo duplikate imena i prezimena u tablici 
+select count(*) as repetitions last_name, first_name
+from employee
+group by last_name, first_name
+having repetitions > 1;

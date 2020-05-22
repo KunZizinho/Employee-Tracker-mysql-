@@ -269,6 +269,10 @@ function add_department(){
                 console.table(data)
             })
         })
+        connection.query(`select department_name from department inner join role on department.department_id = role.department_id;`, function(err, data){
+            if(err) throw err;
+            console.table(data)
+        })
     }
 
     //ovdje cemo otvoriti funkciju za update 
@@ -305,8 +309,10 @@ function add_department(){
             let roles = [];
 
             for(let i = 0; i < data.length; i++){
-                employees.push(data[i].first_name);
-                console.log(employees)
+
+                    employees.push(data[i].first_name);
+                    console.log(employees)
+
             }
 
             connection.query(`select * from role`, function(err, data){
@@ -315,8 +321,8 @@ function add_department(){
                 }
                 
                 for(let i = 0; i < data.length; i++){
-                    roles.push(data[i].position);
-                    console.log(data, roles)
+                    roles.push(data[i].role_id);
+                    console.log("here are roles " + roles)
                 }
                 
                 inquirer.prompt([
@@ -332,16 +338,24 @@ function add_department(){
                         type: "list",
                         choices: roles
                     }
-                ]).then(function({employee_id,role_id}){
-                    var sql = "update employee"
-                    connection.query(`update employee `)
-                    // connection.query(`update employee set role_id = ${roles.indexOf(role_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`, function(err, data){
-                    //     if(err){
-                    //         throw err;
-                    //     }
-                    //     getJob();
-                    // })
+                ])
+                // .then(function({employee_id,role_id}){
+                //     var sql = "update employee"
+                //     connection.query(`update employee `)
+                //     connection.query(`update employee set role_id = ${roles.indexOf(role_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`, function(err, data){
+                //         if(err){
+                //             throw err;
+                //         }
+                //     })
+                // })
+                .then(res =>{
+                    connection.query(`update role set title = ${res.role_id} where title = ${res.role_id}`, function(err, data){
+                        if(err) throw err;
+                        console.table("here 350" + data)
+                    })
+
                 })
+
             })
         })
     }
@@ -373,21 +387,27 @@ function add_department(){
                     choices: ["none"].concat(employees)
                 }
 
-            ]).then(({employee_id, manager_id}) => {
+            ])
+            // .then(({employee_id, manager_id}) => {
 
-                let queryTxt = "";
-                if(manager_id !== "none"){
-                    queryTxt = `update employee set manager_id = ${employees.indexOf(manager_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`
-                } else {
-                    queryTxt = `update employee set manager_id = ${null} where id = ${employees.indexOf(employee_id) + 1}`
+            //     let queryTxt = "";
+            //     if(manager_id !== "none"){
+            //         queryTxt = `update employee set manager_id = ${employees.indexOf(manager_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`
+            //     } else {
+            //         queryTxt = `update employee set manager_id = ${null} where id = ${employees.indexOf(employee_id) + 1}`
+            //     }
+
+            //     connection.query(queryTxt, function(err, data){
+            //         if(err){
+            //             throw err;
+            //         }
+            //         // getJob();
+            //     })
+            // })
+            .then(res =>{
+                if(employees.includes(res.manager_id)){
+                    console.log(res)
                 }
-
-                connection.query(queryTxt, function(err, data){
-                    if(err){
-                        throw err;
-                    }
-                    getJob();
-                })
             })
         });
     }
