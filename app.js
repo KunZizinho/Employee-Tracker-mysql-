@@ -269,10 +269,10 @@ function add_department(){
                 console.table(data)
             })
         })
-        connection.query(`select department_name from department inner join role on department.department_id = role.department_id;`, function(err, data){
-            if(err) throw err;
-            console.table(data)
-        })
+        // connection.query(`select department_name from department inner join role on department.department_id = role.department_id;`, function(err, data){
+        //     if(err) throw err;
+        //     console.table(data)
+        // })
     }
 
     //ovdje cemo otvoriti funkciju za update 
