@@ -122,9 +122,9 @@ function add_department(){
             console.log("Department added")
             console.log(data)
 
-        })
-    })
-}
+        });
+    });
+};
  
  // ovdje cemo otvoriti funkciju koja u slucaju da korisnik odamere add_role
 
@@ -139,7 +139,7 @@ function add_department(){
          for(let i = 0; i <data.length; i++){
              //loop kojim ispisuemo imena svih departmenta
 
-             departments.push(data[i].name);
+             departments.push(data[i].department_name);
          }
          inquirer.prompt([
              {
@@ -158,18 +158,27 @@ function add_department(){
                  type: "list",
                  choices: departments
              }
-         ]).then(function({position, salary, department_id}){
+         ])
+        //  .then(function({position, salary, department_id}){
 
-             let index = departments.indexOf(department_id);
-             connection.query(`insert into role(title, salary, department_id) values ("${position}", "${salary}", "${index}")`, function(err, data){
-                 if(err){
-                     throw err;
+        //      let index = departments.indexOf(department_id);
+        //      connection.query(`insert into role(title, salary, department_id) values ("${position}", "${salary}", "${index}")`, function(err, data){
+        //          if(err){
+        //              throw err;
 
-                 }
-                 getJob();
-             })
+        //          }
+        //          getJob();
+        //      })
 
-         })
+        //  })
+        .then(res =>{
+            let deptIndex = departments.indexOf(res.department_id);
+            connection.query(`insert into role(title, salary, department_id) values ("${res.position}", "${res.salary}", "${deptIndex}")`, function(err, data){
+                if(err) throw err;
+                // console.log(res, data, deptIndex)
+                console.log("Role successfully added!")
+            })
+        })
 
      })
  }
@@ -212,20 +221,29 @@ function add_department(){
                  type: "list",
                  choices: ["none"].concat(employees)
              }
-         ]).then(function({first_name, last_name, role_id, manager_id}){
-             let queryTxt = `insert into employee(first_name, last_name, role_id)`;
-             if(manager_id != "none"){
-                 queryTxt += `values ("${first_name}", "${last_name}", ${roles.indexOf(role_id)}, ${employees.indexOf(manager_id) + 1})`
-             }
-             console.log(queryTxt)
+         ])
+        //  .then(function({first_name, last_name, role_id, manager_id}){
+        //      let queryTxt = `insert into employee(first_name, last_name, role_id)`;
+        //      if(manager_id != "none"){
+        //          queryTxt += `values ("${first_name}", "${last_name}", ${roles.indexOf(role_id)}, ${employees.indexOf(manager_id) + 1})`
+        //      }
+        //      console.log(queryTxt)
 
-             connection.query(queryTxt, function(err, data){
-                 if(err){
-                     throw err;
-                 }
-                 getJob();
-             })
-         })
+        //      connection.query(queryTxt, function(err, data){
+        //          if(err){
+        //              throw err;
+        //          }
+        //          getJob();
+        //      })
+        //  })
+        .then(res =>{
+            let queryTxt = `insert into employee(first_name, last_name, role_id)`;
+            let roleIdIndex = roles.indexOf(role_id);
+            let managerIdIndex = employees.indexOf(manager_id);
+            if(manager_id !== "none"){
+                queryTxt += `values("${res.first_name}", "${res.last_name}", "${roleIdIndex}", "${managerIdIndex}" + 1)`
+            }
+        })
         
         })
     }
