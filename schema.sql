@@ -1,6 +1,6 @@
-DROP DATABASE IF EXISTS Employee_tracker_DB;
-CREATE database Employee_tracker_DB;
-USE Employee_tracker_DB;
+DROP DATABASE IF EXISTS employee_tracker;
+CREATE database employee_tracker;
+USE employee_tracker;
  
 CREATE TABLE department (
   department_id INT NOT NULL AUTO_INCREMENT,
@@ -25,6 +25,7 @@ CREATE TABLE employee (
 
 );
 
+
 INSERT INTO department (department_name)
 VALUES ("Develop");
 INSERT INTO department (department_name)
@@ -40,15 +41,13 @@ VALUES ("intern", 5000, 3);
 INSERT INTO employee (first_name, last_name, role_id)
 VALUES ("Marko","Dundovic", 2);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Mario", "Kozic", 3, 2);
+VALUES ("Mario", "Kozic", 3, 1);
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
 VALUES ("Tomislav", "Kozic", 1, 2);
 INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Denis", "Demirovski", 2, );
-INSERT INTO employee (first_name, last_name, role_id)
 VALUES ("Milan", "Soco", 3);
 
-select from roles cross join employees;
+select * from role cross join employee;
 
 -- replace into employee(first_name, last_name)
 -- values("Mario", "Kozic"),
@@ -57,8 +56,3 @@ select from roles cross join employees;
 -- ("Denis", "Demirovski");
 
 
--- ovim queryem brojimo duplikate imena i prezimena u tablici 
-select count(*) as repetitions last_name, first_name
-from employee
-group by last_name, first_name
-having repetitions > 1;
