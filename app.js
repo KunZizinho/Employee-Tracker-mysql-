@@ -405,190 +405,258 @@ function add_department(){
                     if(err) throw err;
                     console.table(data)
                     console.log("Employee updated successfully!")
-                })
+                });
  
-                //  var sql = `UPDATE role SET title = ? , role_id = ? , where role_id = ?`;
-                //  var query = connection.query(sql,[`${res.role}, ${res.role_id}`], function(err, result){
-                //      if(err) throw err;
-                //      console.log(result)
-                //  })
-                //  connection.query(`UPDATE employee set title = ${res.role} where first_name = ${res.emply} `, function(err, data){
-                //      if(err) throw err;
-                //      console.log("You Successfully updated a role!!")
-                //  })
-
-             })
+             });
       
-         })
-     }
+         });
+     };
 
 // console.log(employees);
 
-//     //ovdje cemo otvoriti funkciju za manager update
+//ovdje cemo otvoriti funkciju za manager update
 
-//     function update_manager(){
+    function update_manager(){
 
 
-//         connection.query(`select * from employee`, function(err, data){
-//             if(err){
-//                 throw err;
-//             }
-//             let employees = [];
-//             for(let i = 0; i < data.length; i++){
-//                 employees.push(data[i].first_name)
-//             }
+        connection.query(`select * from employee`, function(err, data){
+            if(err){
+                throw err;
+            }
+            let employees = [];
+            for(let i = 0; i < data.length; i++){
+                employees.push(data[i].first_name)
+            }
 
-//             inquirer.prompt([
-//                 {
-//                     name: "employee_id",
-//                     message: "Which employee would you like update?",
-//                     type: "list",
-//                     choices: employees
-//                 },
-//                 {
-//                     name: "manager_id",
-//                     message: "Who is the new manager?",
-//                     type: "list",
-//                     choices: ["none"].concat(employees)
-//                 }
+            inquirer.prompt([
+                {
+                    name: "employee_id",
+                    message: "Which employee would you like update?",
+                    type: "list",
+                    choices: employees
+                },
+                {
+                    name: "manager_id",
+                    message: "Who is the new manager?",
+                    type: "list",
+                    choices: ["none"].concat(employees)
+                }
 
-//             ])
-//             // .then(({employee_id, manager_id}) => {
+            ])
+            // .then(({employee_id, manager_id}) => {
 
-//             //     let queryTxt = "";
-//             //     if(manager_id !== "none"){
-//             //         queryTxt = `update employee set manager_id = ${employees.indexOf(manager_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`
-//             //     } else {
-//             //         queryTxt = `update employee set manager_id = ${null} where id = ${employees.indexOf(employee_id) + 1}`
-//             //     }
+            //     let queryTxt = "";
+            //     if(manager_id !== "none"){
+            //         queryTxt = `update employee set manager_id = ${employees.indexOf(manager_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`
+            //     } else {
+            //         queryTxt = `update employee set manager_id = ${null} where id = ${employees.indexOf(employee_id) + 1}`
+            //     }
 
-//             //     connection.query(queryTxt, function(err, data){
-//             //         if(err){
-//             //             throw err;
-//             //         }
-//             //         // getJob();
-//             //     })
-//             // })
-//             .then(res =>{
-//                 if(employees.includes(res.manager_id)){
-//                     console.log(res)
-//                 }
-//             })
-//         });
-//     }
+            //     connection.query(queryTxt, function(err, data){
+            //         if(err){
+            //             throw err;
+            //         }
+            //         // getJob();
+            //     })
+            // })
+            .then(res =>{
+                if(employees.includes(res.manager_id)){
+                    console.log(res)
+                }
+            })
+        });
+    }
 
-//     function remove(){
-//         console.log("helo");
-//         // delete department
-//         // delete role
-//         // delete employee
-//         // var department = [];
+    function remove(){
+        console.log("hello");
+        // delete department
+        // delete role
+        // delete employee
+        // var department = [];
+        inquirer.prompt({
+            name:"deleteOptions",
+            message:"What would you like to remove?",
+            type: "list",
+            choices:["Department", "Role", "Employee"]
+        })
+        .then(res =>{
+            switch (res.deleteOptions) {
+                case "Department":
+                    removeDept();
+                    break;
 
-//         inquirer.prompt([
-//             {
-//                 name:"deleteDepartment",
-//                 message:"Wich Dept would you like to remove?",
-//                 type:"list",
-//                 choices:["Research", "Accounting", "Development"]
-//             },
-//             {
-//                name:"deleteRole",
-//                message:"Which role would you like to remove?",
-//                type:"list",
-//                choices:["Intern", "Engineer", "Manager",] 
-//             },
-//             {
-//                 name:"deleteEmployee",
-//                 message:"Wich employee would you like to remove?",
-//                 type:"list",
-//                 choices: [ "Marko", "Mario", "Tomislav", "Denis", "Milan", "Jasmin", "Filip", "Robert", "Danijel"]
-//             }
-//         ])
-//         .then(res =>{
-//             switch (res.deleteDepartment) {
-//                 case "Research":
-//                     connection.query(`DELETE FROM department where department_id = 3`);
-//                     console.log("Department was successfully removed")
-//                     connection.end()
+                case "Role":
+                    removeRole();
+                    break;
 
-//                 case "Accounting":
-//                     connection.query(`DELETE FROM department where department_id = 2`);
-//                     console.log("Department was successfully removed")
-//                     connection.end()
+                case "Employee":
+                    removeEmployee();
+                    break;
+            };
+        });
 
-//                 case "Development":
-//                     connection.query(`DELETE FROM department where department_id = 1`);
-//                     console.log("Department was successfully removed")
-//                     connection.end()
+    };
 
-//             }
+    function removeDept(){
+        connection.query(`SELECT * FROM department`, function(err, data){
+            var department = [];
+            if(err) throw err;
+            for(let i = 0; i < data.length; i++){
+                department.push(data[i].department_name);
+            };
+            console.table(department)
 
-//             switch (res.deleteRole) {
-//                 case "Intern":
-//                     connection.query(`DELETE FROM role where role_id = 3`);
-//                     console.log("Role was successfully removed")
-//                     break;
+        inquirer.prompt({
+            name:"deptRemoval",
+            message:"Which department are you removing?",
+            type:"list",
+            choices: department
+        })
+        .then(res =>{
 
-//                 case "Engineer":
-//                     connection.query(`DELETE FROM role where role_id = 2`);
-//                     console.log("Role was successfully removed")
-//                     break;
+            connection.query(`DELETE FROM department where department_name = "${res.deptRemoval}"`);
+            console.log("Department was successfully removed")
+            connection.end();
 
-//                 case "Manager":
-//                     connection.query(`DELETE FROM role where role_id = 1`);
-//                     console.log("Role was successfully removed")
-//                     break;
+            // switch (res.deptRemoval) {
+            //     case "Research":
+            //         connection.query(`DELETE FROM department where department_id = 3`);
+            //         console.log("Department was successfully removed")
+            //         connection.end();
+
+            //     case "Accounting":
+            //         connection.query(`DELETE FROM department where department_id = 2`);
+            //         console.log("Department was successfully removed")
+            //         connection.end();
+
+            //     case "Development":
+            //         connection.query(`DELETE FROM department where department_id = 1`);
+            //         console.log("Department was successfully removed")
+            //         connection.end();
+
+            // };
+        });
+
+    });
+
+    };
+
+    function removeRole(){ 
+        connection.query(`SELECT * FROM role`, function(err, data){
+            var role = [];
+            if(err) throw err;
+            for(let i = 0; i < data.length; i++){
+                role.push(data[i].title);
+            };
+            console.table(role)
+
+
+        inquirer.prompt({
+            name:"roleRemoval",
+            message:"Which role do you wanna remove ?",
+            type:"list",
+            choices: role
+        })
+        .then(res =>{
+
+                connection.query(`DELETE FROM role where title = "${res.roleRemoval}"`);
+                console.log("Role was successfully removed")
+                connection.end();
+
+            // testing purposes
+            // switch (res.roleRemoval) {
+            //     case "Intern":
+            //         connection.query(`DELETE FROM role where role_id = 3`);
+            //         console.log("Role was successfully removed")
+            //         connection.end();
+
+            //     case "Engineer":
+            //         connection.query(`DELETE FROM role where role_id = 2`);
+            //         console.log("Role was successfully removed")
+            //         connection.end();
+
+            //     case "Manager":
+            //         connection.query(`DELETE FROM role where role_id = 1`);
+            //         console.log("Role was successfully removed")
+            //         connection.end();
   
-//             }
-           
-//             switch (res.deleteEmployee) {
-//                 case "Marko":
-//                     connection.query(`DELETE FROM employee where first_name = "Marko"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+            // };
+            })
+        });
+    };
 
-//                 case "Mario":
-//                     connection.query(`DELETE FROM employee where first_name = "Mario"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    function removeEmployee(){
+        connection.query(`SELECT * FROM employee`, function(err, data){
+            var employee = [];
+            if(err) throw err;
+            for(let i = 0; i < data.length; i++){
+                employee.push(data[i].first_name);
+            };
+            console.table(employee)
+        
+        inquirer.prompt({
+            name:"employeeRemoval",
+            message:"Which employee do you wanna remove?",
+            type:"list",
+            choices: employee
+        })
+        .then(res =>{
+            connection.query(`DELETE FROM employee where first_name = "${res.employeeRemoval}"`, function(err, data){
+                if(err) throw err;
+                console.log("You have removed Employee successfully!")
+                connection.end();
+            });
+        });
+    });
+    }
+       // lines used for testing purposes    
+    //         switch (res.deleteEmployee) {
+    //             case "Marko":
+    //                 connection.query(`DELETE FROM employee where first_name = "Marko"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//                 case "Tomislav":
-//                     connection.query(`DELETE FROM employee where first_name = "Tomislav"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    //             case "Mario":
+    //                 connection.query(`DELETE FROM employee where first_name = "Mario"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//                 case "Denis":
-//                     connection.query(`DELETE FROM employee where first_name = "Denis"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    //             case "Tomislav":
+    //                 connection.query(`DELETE FROM employee where first_name = "Tomislav"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//                 case "Filip":
-//                     connection.query(`DELETE FROM employee where first_name = "Filip"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    //             case "Denis":
+    //                 connection.query(`DELETE FROM employee where first_name = "Denis"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//                 case "Danijel":
-//                     connection.query(`DELETE FROM employee where first_name = "Danijel"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    //             case "Filip":
+    //                 connection.query(`DELETE FROM employee where first_name = "Filip"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//                 case "Jasmin":
-//                     connection.query(`DELETE FROM employee where first_name = "Jasmin"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    //             case "Danijel":
+    //                 connection.query(`DELETE FROM employee where first_name = "Danijel"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//                 case "Robert":
-//                     connection.query(`DELETE FROM employee where first_name = "Robert"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    //             case "Jasmin":
+    //                 connection.query(`DELETE FROM employee where first_name = "Jasmin"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//                 case "Milan":
-//                     connection.query(`DELETE FROM employee where first_name = "Milan"`);
-//                     console.log("Employee was successfully removed")
-//                     break;
+    //             case "Robert":
+    //                 connection.query(`DELETE FROM employee where first_name = "Robert"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//             };
+    //             case "Milan":
+    //                 connection.query(`DELETE FROM employee where first_name = "Milan"`);
+    //                 console.log("Employee was successfully removed")
+    //                 connection.end();
 
-//     }) ;
+    //         };
 
-    // };
+    // }) 
+    

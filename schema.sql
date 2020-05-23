@@ -26,27 +26,6 @@ CREATE TABLE employee (
 );
 
 
-INSERT INTO department (department_name)
-VALUES ("Develop");
-INSERT INTO department (department_name)
-VALUES ("Accounting");
-INSERT INTO department (department_name)
-VALUES ("Research");
-INSERT INTO role (title, salary, department_id)
-VALUES ("Manager", 200000, 1);
-INSERT INTO role (title, salary, department_id)
-VALUES ("Engineer", 100000, 2);
-INSERT INTO role (title, salary, department_id)
-VALUES ("intern", 5000, 3);
-INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Marko","Dundovic", 2);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Mario", "Kozic", 3, 1);
-INSERT INTO employee (first_name, last_name, role_id, manager_id)
-VALUES ("Tomislav", "Kozic", 1, 2);
-INSERT INTO employee (first_name, last_name, role_id)
-VALUES ("Milan", "Soco", 3);
-
 select * from role cross join employee;
 
 -- replace into employee(first_name, last_name)
