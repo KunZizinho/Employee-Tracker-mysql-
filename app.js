@@ -264,7 +264,7 @@ function add_department(){
                 name: "db",
                 message: "What would you like to view?",
                 type: "list",
-                choices: ["department", "role", "employee","View Teams", "View Managment"]
+                choices: ["department", "role", "employee"]
             }
         )
         // .then(function({db}){
@@ -291,6 +291,37 @@ function add_department(){
                         if(err) throw err;
                         console.table(data)
                     })
+
+                case "role":
+                    connection.query(`SELECT *FROM role ${res.db}`, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    })
+                    connection.query(`select title, salary, department_id from role left join employee on role.role_id = employee.role_id;`, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    })
+                    connection.query(`select first_name, last_name, (manager_id) = 1, 2 from employee left join role on employee.role_id = role.role_id;`, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    })
+                    connection.query(`select employee_id, first_name, last_name, manager_id from employee left join role  on employee.role_id = role.role_id where (manager_id) != 0;`, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    })
+
+                case "employee":
+                    connection.query(`select department_name, first_name, last_name, employee.role_id, role.department_id, title, salary, employee_id from department, role, employee;
+                    `, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    })
+                    connection.query(`select * from employee ,department group by department_name  order by role_id; `, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    })
+
+
 
             }
         })
@@ -326,25 +357,29 @@ function add_department(){
     //ovdje cemo otvoriti funkciju za update role
 
      function update_role(){
-         connection.query(`SELECT employee.employee_id, employee.first_name, employee.last_name, role.title, department_name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.role_id LEFT JOIN department on role.department_id = department.department_id ;`, function(err,data, field){
+         connection.query(`SELECT employee.employee_id, employee.first_name, employee.role_id, employee.last_name, role.title, department_name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.role_id LEFT JOIN department on role.department_id = department.department_id ;`, function(err,data, field){
              if(err) throw err;
             //  console.log(data,  field)
              var employees = [];
-
              var roles = [];
+             var object = [];
+             var objectId = [];
 
              for(let i = 0; i < data.length; i++){
-                 employees.push(data);
+                 employees.push(data[i].first_name);
                  roles.push(data[i].title) 
+                 object.push(data[i].department_name)
+                 objectId.push(data[i].role_id)
+                 console.table(data[i])
              }
              for(let i = 0; i < data.length; i++){
 
              }
-             console.log("linija 318", employees, roles)
+
 
              inquirer.prompt([
                  {
-                     name:"emply",
+                     name:"employeeName",
                      message:"Wich employee is getting updated",
                      type:"list",
                      choices: employees
@@ -355,19 +390,43 @@ function add_department(){
                      type:"list",
                      choices: roles
 
+                 },
+                 {
+                     name:"departmentName",
+                     message:"In which department is the new assignment?",
+                     type:"list",
+
+                     choices:["None"].concat(object)
                  }
              ])
              .then(res =>{
+                 var roleId = objectId;
+                 console.log(roleId, "heeeeeeeereeee")
+                 var x = result =>{
+                    for(let i = 0; i <roleId.length; i++){
+                        var newRoleID= [];
+                        if (res.role === roleId){
+                            newRoleID.push(roleId);
+                            return newRoleID;
+                        }
+                    };
+                    console.log(result)
+                 }
+                connection.query(`UPDATE role SET title = ${res.role}, role_id = ${x}  where first_name = ${res.employeeName}`, function(err, data){
+                    if(err) throw err;
+                    console.table(data)
+                    console.log("Employee updated successfully!")
+                })
  
-                 var sql = `UPDATE role SET title = ? , role_id = ? , where role_id = ?`;
-                 var query = connection.query(sql,[`${res.role}, ${res.role_id}`], function(err, result){
-                     if(err) throw err;
-                     console.log(result)
-                 })
-                 connection.query(`UPDATE employee set title = ${res.role} where first_name = ${res.emply} `, function(err, data){
-                     if(err) throw err;
-                     console.log("You Successfully updated a role!!")
-                 })
+                //  var sql = `UPDATE role SET title = ? , role_id = ? , where role_id = ?`;
+                //  var query = connection.query(sql,[`${res.role}, ${res.role_id}`], function(err, result){
+                //      if(err) throw err;
+                //      console.log(result)
+                //  })
+                //  connection.query(`UPDATE employee set title = ${res.role} where first_name = ${res.emply} `, function(err, data){
+                //      if(err) throw err;
+                //      console.log("You Successfully updated a role!!")
+                //  })
 
              })
       
@@ -435,17 +494,7 @@ function add_department(){
         // delete role
         // delete employee
         // var department = [];
-         var  employees = [];
-         var roles =[];
-        connection.query(`select select employee.manager_id, employee.role_id, employee.first_name, employee.last_name from employee left join role on employee.role_id = role.role_id;`,
-        (err, data)=>{
-            if(err) throw err;
-            console.table(data)
-            for(let i = 0; i < data.length; i++){
-                employees.push(data[i].first_name)
-                roles.push(data[i].title)
-            }
-        })
+
         inquirer.prompt([
             {
                 name:"deleteDepartment",
@@ -463,45 +512,79 @@ function add_department(){
                 name:"deleteEmployee",
                 message:"Wich employee would you like to remove?",
                 type:"list",
-                choices: ["None"].concat(employees)
+                choices: [ "Marko", "Mario", "Tomislav", "Denis", "Milan", "Jasmin", "Filip", "Robert", "Danijel"]
             }
         ])
-    //     .then(res =>{
-    //         switch (res.deleteDepartment) {
-    //             case "Research":
-    //                 connection.query(`DELETE FROM department where department_id = 3`);
-    //                 break;
+        .then(res =>{
+            switch (res.deleteDepartment) {
+                case "Research":
+                    connection.query(`DELETE FROM department where department_id = 3`);
+                    break;
 
-    //             case "Accounting":
-    //                 connection.query(`DELETE FROM accounting where department_id = 2`);
-    //                 break;
+                case "Accounting":
+                    connection.query(`DELETE FROM accounting where department_id = 2`);
+                    break;
 
-    //             case "Development":
-    //                 connection.query(`DELETE FROM development where department_id = 1`);
-    //                 break;
+                case "Development":
+                    connection.query(`DELETE FROM development where department_id = 1`);
+                    break;
 
-    //         }
+            }
 
-    //         switch (res.deleteRole) {
-    //             case "Intern":
-    //                 connection.query(`DELETE FROM role where role_id = 3`);
-    //                 break;
+            switch (res.deleteRole) {
+                case "Intern":
+                    connection.query(`DELETE FROM role where role_id = 3`);
+                    break;
 
-    //             case "Engineer":
-    //                 connection.query(`DELETE FROM role where role_id = 2`);
-    //                 break;
+                case "Engineer":
+                    connection.query(`DELETE FROM role where role_id = 2`);
+                    break;
 
-    //             case "Manager":
-    //                 connection.query(`DELETE FROM role where role_id = 1`);
-    //                 break;
+                case "Manager":
+                    connection.query(`DELETE FROM role where role_id = 1`);
+                    break;
   
-    //         }
-    //         if(res.deleteEmployee){
-    //             connection.query(`DELETE FROM employee where employee_id = ${res.deleteEmployee}`);
-    //             break;
-    //         }
+            }
+           
+            switch (res.deleteEmployee) {
+                case "Marko":
+                    connection.query(`DELETE FROM employee where first_name = "Marko"`);
+                    break;
 
+                case "Mario":
+                    connection.query(`DELETE FROM employee where first_name = "Mario"`);
+                    break;
 
-    // }) 
+                case "Tomislav":
+                    connection.query(`DELETE FROM employee where first_name = "Tomislav"`);
+                    break;
 
-    }
+                case "Denis":
+                    connection.query(`DELETE FROM employee where first_name = "Denis"`);
+                    break;
+
+                case "Filip":
+                    connection.query(`DELETE FROM employee where first_name = "Filip"`);
+                    break;
+
+                case "Danijel":
+                    connection.query(`DELETE FROM employee where first_name = "Danijel"`);
+                    break;
+
+                case "Jasmin":
+                    connection.query(`DELETE FROM employee where first_name = "Jasmin"`);
+                    break;
+
+                case "Robert":
+                    connection.query(`DELETE FROM employee where first_name = "Robert"`);
+                    break;
+
+                case "Milan":
+                    connection.query(`DELETE FROM employee where first_name = "Milan"`);
+                    break;
+
+            };
+
+    }) ;
+
+    };
