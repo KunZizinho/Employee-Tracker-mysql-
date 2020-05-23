@@ -29,7 +29,7 @@ function startApp(){
             name:"action",
             type:"list",
             message:"What action would you like to take?",
-            choices:["Add", "View", "Update", "Exit"]
+            choices:["Add", "View", "Update", "Delete", "Exit"]
         }
     ])
     .then(answer =>{
@@ -45,6 +45,11 @@ function startApp(){
             case "Update":
                 update();
                 break;
+
+            case "Delete":
+                deleteOption();
+                break;
+
             case "Exit":
                 connection.end();
         }
@@ -259,15 +264,31 @@ function add_department(){
                 name: "db",
                 message: "What would you like to view?",
                 type: "list",
-                choices: ["department", "role", "employee"]
+                choices: ["department", "role", "employee","View Teams", "View Managment"]
             }
-        ).then(function({db}){
-            connection.query(`select * from ${db}`, function(err, data){
-                if(err){
-                    throw err;
-                }
-                console.table(data)
-            })
+        )
+        // .then(function({db}){
+        //     connection.query(`select * from ${db}`, function(err, data){
+        //         if(err){
+        //             throw err;
+        //         }
+        //         console.table(data)
+        //     })
+
+        // })
+        .then(res =>{
+            switch (res.db) {
+                case "department":
+                    connection.query(`SELECT * FROM ${res.db}`, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    })
+                    connection.query(`SELECT department_name FROM department INNER JOIN role on department.department_id - role.department_id ;`, function(err, data){
+                        if(err) throw err;
+                        console.table(data)
+                    }) 
+
+            }
         })
         // connection.query(`select department_name from department inner join role on department.department_id = role.department_id;`, function(err, data){
         //     if(err) throw err;
@@ -300,69 +321,61 @@ function add_department(){
 
     //ovdje cemo otvoriti funkciju za update role
 
-    function update_role(){
-        connection.query(`select * from employee`, function(err, data){
-            if(err){
-                throw err;
-            }
-            let employees = [];
-            let roles = [];
+     function update_role(){
+         connection.query(`SELECT employee.employee_id, employee.first_name, employee.last_name, role.title, department_name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.role_id LEFT JOIN department on role.department_id = department.department_id ;`, function(err,data, field){
+             if(err) throw err;
+            //  console.log(data,  field)
+             var employees = [];
 
-            for(let i = 0; i < data.length; i++){
+             var roles = [];
 
-                    employees.push(data[i].first_name);
-                    console.log(employees)
+             for(let i = 0; i < data.length; i++){
+                 employees.push(data);
+                 roles.push(data[i].title) 
+             }
+             for(let i = 0; i < data.length; i++){
 
-            }
+             }
+             console.log("linija 318", employees, roles)
 
-            connection.query(`select * from role`, function(err, data){
-                if(err){
-                    throw err;
-                }
-                
-                for(let i = 0; i < data.length; i++){
-                    roles.push(data[i].role_id);
-                    console.log("here are roles " + roles)
-                }
-                
-                inquirer.prompt([
-                    {
-                        name: "employee_id",
-                        message: "Who's role need's to be updated?",
-                        type: "list",
-                        choices: employees
-                    },
-                    {
-                        name: "role_id",
-                        message: "What is the new role?",
-                        type: "list",
-                        choices: roles
-                    }
-                ])
-                // .then(function({employee_id,role_id}){
-                //     var sql = "update employee"
-                //     connection.query(`update employee `)
-                //     connection.query(`update employee set role_id = ${roles.indexOf(role_id) + 1} where id = ${employees.indexOf(employee_id) + 1}`, function(err, data){
-                //         if(err){
-                //             throw err;
-                //         }
-                //     })
-                // })
-                .then(res =>{
-                    connection.query(`update role set title = ${res.role_id} where title = ${res.role_id}`, function(err, data){
-                        if(err) throw err;
-                        console.table("here 350" + data)
-                    })
+             inquirer.prompt([
+                 {
+                     name:"emply",
+                     message:"Wich employee is getting updated",
+                     type:"list",
+                     choices: employees
+                 },
+                 {
+                     name:"role",
+                     message:"What role are you assigning the employee?",
+                     type:"list",
+                     choices: roles
 
-                })
+                 }
+             ])
+             .then(res =>{
+ 
+                 var sql = `UPDATE role SET title = ? , role_id = ? , where role_id = ?`;
+                 var query = connection.query(sql,[`${res.role}, ${res.role_id}`], function(err, result){
+                     if(err) throw err;
+                     console.log(result)
+                 })
+                 connection.query(`UPDATE employee set title = ${res.role} where first_name = ${res.emply} `, function(err, data){
+                     if(err) throw err;
+                     console.log("You Successfully updated a role!!")
+                 })
 
-            })
-        })
-    }
+             })
+      
+         })
+     }
+
+
 
     //ovdje cemo otvoriti funkciju za manager update
 
     function update_manager(){
+
 
         connection.query(`select * from employee`, function(err, data){
             if(err){
@@ -410,4 +423,82 @@ function add_department(){
                 }
             })
         });
+    }
+
+    function deleteOption(){
+        // console.log("helo")
+        // delete department
+        // delete role
+        // delete employee
+        var sql = connection.query(`SELECT employee.employee_id, employee.first_name, employee.last_name, role.title, department_name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.role_id LEFT JOIN department on role.department_id = department.department_id ;`, function(err,data, field){
+            if(err) throw err;
+
+        var employees = [];
+        var roles = [];
+        var department = [];
+        for(let i = 0; i <data.length; i++){
+            employees.push(data[i].first_name);
+            roles.push(data[i].titles);
+            department.push(data[i].department_name);
+        };
+
+        
+        inquirer.prompt([
+            {
+                name:"deleteDepartment",
+                message:"Wich Dept would you like to remove?",
+                type:"list",
+                choices:["Research", "Accounting", "Development"]
+            },
+            {
+               name:"deleteRole",
+               message:"Which role would you like to remove?",
+               type:"list",
+               choices:["Intern", "Engineer", "Manager",] 
+            },
+            {
+                name:"deleteEmployee",
+                message:"Wich employee would you like to remove?",
+                type:"list",
+                choices: ["None"].concat(employees)
+            }
+        ])
+        .then(res =>{
+            switch (res.deleteDepartment) {
+                case "Research":
+                    connection.query(`DELETE FROM department where department_id = 3`);
+                    break;
+
+                case "Accounting":
+                    connection.query(`DELETE FROM accounting where department_id = 2`);
+                    break;
+
+                case "Development":
+                    connection.query(`DELETE FROM development where department_id = 1`);
+                    break;
+
+            }
+
+            switch (res.deleteRole) {
+                case "Intern":
+                    connection.query(`DELETE FROM role where role_id = 3`);
+                    break;
+
+                case "Engineer":
+                    connection.query(`DELETE FROM role where role_id = 2`);
+                    break;
+
+                case "Manager":
+                    connection.query(`DELETE FROM role where role_id = 1`);
+                    break;
+  
+            }
+            if(res.deleteEmployee){
+                connection.query(`DELETE FROM employee where employee_id = ${res.deleteEmployee}`);
+                break;
+            }
+        })
+
+    }) 
+
     }
