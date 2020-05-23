@@ -47,13 +47,13 @@ function startApp(){
                 break;
 
             case "Delete":
-                deleteOption();
+                remove();
                 break;
 
             case "Exit":
                 connection.end();
-        }
-    })
+        };
+    });
     
 }
 
@@ -279,14 +279,18 @@ function add_department(){
         .then(res =>{
             switch (res.db) {
                 case "department":
-                    connection.query(`SELECT * FROM ${res.db}`, function(err, data){
+                    connection.query(`SELECT * FROM department ${res.db};`, function(err, data){
                         if(err) throw err;
                         console.table(data)
                     })
-                    connection.query(`SELECT department_name FROM department INNER JOIN role on department.department_id - role.department_id ;`, function(err, data){
+                    connection.query(`SELECT employee.employee_id, employee.first_name, employee.last_name, role.title, department_name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.role_id LEFT JOIN department on role.department_id = department.department_id ;`, function(err, data){
                         if(err) throw err;
                         console.table(data)
                     }) 
+                    connection.query(`select (manager_id) = 2, (department_id) =2, first_name, last_name   from employee inner join role;`,(err, data)=>{
+                        if(err) throw err;
+                        console.table(data)
+                    })
 
             }
         })
@@ -425,24 +429,23 @@ function add_department(){
         });
     }
 
-    function deleteOption(){
-        // console.log("helo")
+    function remove(){
+        console.log("helo");
         // delete department
         // delete role
         // delete employee
-        var sql = connection.query(`SELECT employee.employee_id, employee.first_name, employee.last_name, role.title, department_name AS department, role.salary FROM employee LEFT JOIN role on employee.role_id = role.role_id LEFT JOIN department on role.department_id = department.department_id ;`, function(err,data, field){
+        // var department = [];
+         var  employees = [];
+         var roles =[];
+        connection.query(`select select employee.manager_id, employee.role_id, employee.first_name, employee.last_name from employee left join role on employee.role_id = role.role_id;`,
+        (err, data)=>{
             if(err) throw err;
-
-        var employees = [];
-        var roles = [];
-        var department = [];
-        for(let i = 0; i <data.length; i++){
-            employees.push(data[i].first_name);
-            roles.push(data[i].titles);
-            department.push(data[i].department_name);
-        };
-
-        
+            console.table(data)
+            for(let i = 0; i < data.length; i++){
+                employees.push(data[i].first_name)
+                roles.push(data[i].title)
+            }
+        })
         inquirer.prompt([
             {
                 name:"deleteDepartment",
@@ -463,42 +466,42 @@ function add_department(){
                 choices: ["None"].concat(employees)
             }
         ])
-        .then(res =>{
-            switch (res.deleteDepartment) {
-                case "Research":
-                    connection.query(`DELETE FROM department where department_id = 3`);
-                    break;
+    //     .then(res =>{
+    //         switch (res.deleteDepartment) {
+    //             case "Research":
+    //                 connection.query(`DELETE FROM department where department_id = 3`);
+    //                 break;
 
-                case "Accounting":
-                    connection.query(`DELETE FROM accounting where department_id = 2`);
-                    break;
+    //             case "Accounting":
+    //                 connection.query(`DELETE FROM accounting where department_id = 2`);
+    //                 break;
 
-                case "Development":
-                    connection.query(`DELETE FROM development where department_id = 1`);
-                    break;
+    //             case "Development":
+    //                 connection.query(`DELETE FROM development where department_id = 1`);
+    //                 break;
 
-            }
+    //         }
 
-            switch (res.deleteRole) {
-                case "Intern":
-                    connection.query(`DELETE FROM role where role_id = 3`);
-                    break;
+    //         switch (res.deleteRole) {
+    //             case "Intern":
+    //                 connection.query(`DELETE FROM role where role_id = 3`);
+    //                 break;
 
-                case "Engineer":
-                    connection.query(`DELETE FROM role where role_id = 2`);
-                    break;
+    //             case "Engineer":
+    //                 connection.query(`DELETE FROM role where role_id = 2`);
+    //                 break;
 
-                case "Manager":
-                    connection.query(`DELETE FROM role where role_id = 1`);
-                    break;
+    //             case "Manager":
+    //                 connection.query(`DELETE FROM role where role_id = 1`);
+    //                 break;
   
-            }
-            if(res.deleteEmployee){
-                connection.query(`DELETE FROM employee where employee_id = ${res.deleteEmployee}`);
-                break;
-            }
-        })
+    //         }
+    //         if(res.deleteEmployee){
+    //             connection.query(`DELETE FROM employee where employee_id = ${res.deleteEmployee}`);
+    //             break;
+    //         }
 
-    }) 
+
+    // }) 
 
     }
