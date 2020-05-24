@@ -136,10 +136,7 @@ function add_department(){
  function add_role(){
      let departments = [];
      connection.query(`select * from department`, function(err, data){
-         if(err){
-             throw err;
-
-         }
+         if(err) throw err;
 
          for(let i = 0; i <data.length; i++){
              //loop kojim ispisuemo imena svih departmenta
@@ -190,20 +187,15 @@ function add_department(){
 //  // ovdje cemo staviti funkciju kojom dodajemo zaposlenike i pozicije na kojima rade
 
  function add_employee(){
-
     let employees = [];
     let roles = [];
-
-    connection.query(
-        `select * from employee`, function(err, data){
-        if(err){
-            throw err;
-        }
+    connection.query(`select * from employee`, function(err, data){
+        if(err) throw err;
         for(let i = 0; i < data.length; i++){
-            employees.push(data[i].first_name);
+            employees.push(data[i]);
             roles.push(data[i].role_id);
         }
-//         console.table(employees)
+         //console.table(employees)
 
          inquirer.prompt([
              {
@@ -217,9 +209,10 @@ function add_department(){
                  type: "input"
              },
              {
-                 name: "role_id",
+                 name: "role",
                  message: "What is employees role?",
-                 type: "input",
+                 type: "list",
+                 choices: roles
 
              }
             //  {
@@ -244,9 +237,9 @@ function add_department(){
         //      })
         //  })
         .then(res =>{ 
-            let roleIndex = roles.indexOf(res.role_id);
-            console.log(roleIndex)
-            connection.query(`insert into employee(first_name, last_name, role_id) values ("${res.first_name}", "${res.last_name}", "${roleIndex}")`, function(err, data){
+            // let roleIndex = roles.indexOf(res.role_id);
+            // console.log(roleIndex)
+            connection.query(`insert into employee(first_name, last_name, role_id) values ("${res.first_name}", "${res.last_name}", "${res.role}")`, function(err, data){
                 if(err) throw err;
                 // console.log(res, data, roleIndex)
                 console.log("employee successfully added!")
@@ -370,7 +363,7 @@ function add_department(){
                  roles.push(data[i].title) 
                  object.push(data[i].department_id)
                  objectId.push(data[i].role_id)
-                 console.log(data[i],"aaaaaaaaaaaaaa")
+                //  console.log(data[i],"aaaaaaaaaaaaaa")
              }
              for(let i = 0; i < data.length; i++){
 
