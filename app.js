@@ -125,6 +125,7 @@ function add_department(){
         connection.query(`insert into department (department_name) values ('${res.department_name}')`, function(err, data){
             if(err) throw err;
             console.log("Department added")
+            startApp();
             // console.log(data)
 
         });
@@ -178,6 +179,7 @@ function add_department(){
                 if(err) throw err;
                 // console.log(res, data, deptIndex)
                 console.log("Role successfully added!")
+                startApp();
             })
         })
 
@@ -243,6 +245,7 @@ function add_department(){
                 if(err) throw err;
                 // console.log(res, data, roleIndex)
                 console.log("employee successfully added!")
+                startApp();
             });
         });
         
@@ -309,7 +312,7 @@ function add_department(){
                         if(err) throw err;
                         console.table(data)
                     })
-                    connection.query(`select * from employee ,department group by department_name  order by role_id; `, function(err, data){
+                    connection.query(`select * from employee `, function(err, data){
                         if(err) throw err;
                         console.table(data)
                     })
@@ -317,11 +320,8 @@ function add_department(){
 
 
             }
+            startApp();
         })
-        // connection.query(`select department_name from department inner join role on department.department_id = role.department_id;`, function(err, data){
-        //     if(err) throw err;
-        //     console.table(data)
-        // })
     }
 
     //ovdje cemo otvoriti funkciju za update 
@@ -344,7 +344,8 @@ function add_department(){
                     update_manager();
                     break;
             }
-        })
+
+        });
     }
 
     //ovdje cemo otvoriti funkciju za update role
@@ -398,6 +399,7 @@ function add_department(){
                     if(err) throw err;
                     console.table(data)
                     console.log("Employee updated successfully!")
+                    startApp();
                 });
  
              });
